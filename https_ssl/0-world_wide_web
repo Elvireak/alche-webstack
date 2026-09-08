@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+display_info() {
+    subdomain="$1"
+    domain="$2"
+
+    result=$(dig "$subdomain.$domain" | awk '/ANSWER SECTION:/{found=1; next} found && NF {print $4, $5; exit}')
+
+    record_type=$(echo "$result" | awk '{print $1}')
+    destination=$(echo "$result" | awk '{print $2}')
+
+    echo "The subdomain $subdomain is a $record_type record and points to $destination"
+}
+
+domain="$1"
+
+if [ "$#" -eq 1 ]; then
+    display_info "www" "$domain"
+    display_info "lb-01" "$domain"
+    display_info "web-01" "$domain"
+    display_info "web-02" "$domain"
+else
+    display_info "$2" "$domain"
+fi
